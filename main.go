@@ -12,14 +12,36 @@ func main() {
     router := mux.NewRouter()
     router.HandleFunc("/movies", GetAll).Methods("GET")
     router.HandleFunc("/movies", Create).Methods("POST")
-    router.HandleFunc("/movies/{id}", GetMovies).Methods("GET")
+    router.HandleFunc("/movies/{id}", GetMovie).Methods("GET")
     router.HandleFunc("/movies/{id}", Update).Methods("PUT")
     router.HandleFunc("/movies/{id}", DeletePerson).Methods("DELETE")
     log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 
+func GetAll(w http.ResponseWriter, r *http.Request) {
 
+	json.NewEncoder(w).Encode(Movies)
+}
+
+
+func GetMovie(w http.ResponseWriter, r *http.Request) {
+
+	par := mux.Vars(req);
+	for _, movie := range Movies {
+
+		if movie.ID == par["id"] {
+
+			json.NewEncoder(w).Encode(movie)
+
+			return
+
+		}
+
+	}
+
+	json.NewEncoder(w).Encode()
+}
 
 var Movies = []struct {
      ID       int
