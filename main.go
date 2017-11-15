@@ -62,8 +62,20 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 func GetMovie(w http.ResponseWriter, r *http.Request) {
 
 	u := strings.Split(r.URL.Path, "/")
-	i, _ := strconv.Atoi(u[2])
-	m := Movies[i - 1]
+	id, _ := strconv.Atoi(u[2])
+
+	var m Movie
+	for i := range Movies {
+		if Movies[i].ID == id {
+			m = Movies[i]
+		}
+	}
+
+	if m.ID == 0 {
+		fmt.Fprintf(w, "404, Movie not found\n")
+		return
+	}
+
 	json.NewEncoder(w).Encode(m)
 }
 
@@ -73,16 +85,32 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-	//	panic(err)
 		fmt.Println("Error readying body: %v", err)
 	}
 
 	var m Movie
-	fmt.Println("body:", body)
 	err = json.Unmarshal(body, &m)
+
+	var idMap = make(map[int]int)
+	for i := 0; i < len(Movies); i++ {
+		idMap[Movies[i].ID] = 1
+	}
+
+	for i := 1; m.ID == 0; i++ {
+		if _, ok := idMap[i]; ok {
+			continue
+		}
+		m.ID = i
+		break
+	}
+
+	Movies = append(Movies, m)
+
+	fmt.Println(Movies)
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
